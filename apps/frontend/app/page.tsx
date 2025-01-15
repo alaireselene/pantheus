@@ -84,7 +84,7 @@ export default function Home() {
               className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}
             >
               <span className="text-xs text-ancient-brown mb-1 px-2 font-medium">
-                {msg.sender === "user" ? "Bạn" : "Pantheon Bot"}
+                {msg.sender === "user" ? "Bạn" : "Parthenos Bot"}
               </span>
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
@@ -121,7 +121,7 @@ export default function Home() {
           {isLoading && (
             <div className="flex flex-col items-start">
               <span className="text-xs text-ancient-brown mb-1 px-2 font-medium">
-                Pantheon Bot
+                Parthenos Project
               </span>
               <div className="bg-ancient-sage/30 rounded-2xl rounded-tl-none px-4 py-2.5 animate-pulse">
                 Đang trả lời...
@@ -155,7 +155,7 @@ export default function Home() {
       <aside className="w-[480px] h-screen flex flex-col bg-ancient-yellow/10 shadow-inner overflow-y-auto border-l border-ancient-brown/20">
         <div className="flex items-center justify-between p-6 border-b border-ancient-brown/20">
           <span className="text-3xl font-bold text-ancient-gold">
-            <u>Dự án Pantheus</u>
+            <u>Dự án Parthenos</u>
           </span>
           <a
             href="https://github.com/alaireselene/pantheus"
@@ -181,7 +181,7 @@ export default function Home() {
           <div className="mb-6">
             <p>
               <b>
-                <i>Pantheus</i>
+                <i>Parthenos</i>
               </b>{" "}
               là một dự án giúp học sinh tìm hiểu lịch sử dễ dàng hơn thông qua
               sự hỗ trợ của AI. Dự án tập trung vào việc giải đáp các thắc mắc
@@ -217,7 +217,7 @@ export default function Home() {
 
           <div className="border-t pt-4 mt-4">
             <p className="text-sm text-gray-500">
-              © 2024 Pantheus Project - Học Lịch Sử Cùng AI
+              © 2024 Parthenos Project - Học Lịch Sử Cùng AI
             </p>
           </div>
         </div>
