@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from openai import OpenAI
 import os
@@ -12,17 +13,31 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 app = FastAPI()
 
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://pantheus.vercel.app"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://*.vercel.app",  # Allow all Vercel preview deployments
-        "https://your-production-domain.com"  # Replace with your actual domain
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["POST"],
+    allow_headers=["Content-Type"],
+    max_age=3600,  # Cache CORS preflight requests for 1 hour
 )
+
+# Add request validation middleware
+@app.middleware("http")
+async def validate_request(request: Request, call_next):
+    origin = request.headers.get("origin")
+    if origin and origin not in ALLOWED_ORIGINS:
+        return JSONResponse(
+            status_code=403,
+            content={"detail": "Origin not allowed"}
+        )
+    return await call_next(request)
 
 class ChatRequest(BaseModel):
     message: str
