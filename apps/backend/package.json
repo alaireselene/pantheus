@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "uvicorn main:app --reload",
+    "dev": "uvicorn --host 0.0.0.0 main:app --reload",
     "start": "uvicorn main:app",
     "build": "echo 'No build step needed for Python'"
   }
