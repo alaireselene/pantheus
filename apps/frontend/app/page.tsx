@@ -185,7 +185,7 @@ export default function Home() {
               </b>{" "}
               là một dự án giúp học sinh tìm hiểu lịch sử dễ dàng hơn thông qua
               sự hỗ trợ của AI. Dự án tập trung vào việc giải đáp các thắc mắc
-              về đền Pantheon - một công trình kiến trúc mang tính biểu tượng
+              về đền Parthenon - một công trình kiến trúc mang tính biểu tượng
               của La Mã cổ đại.
             </p>
             <p>
