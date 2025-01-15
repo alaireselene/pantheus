@@ -8,7 +8,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "0",
-      content: "Xin chào! Tôi có thể giúp gì cho bạn về đền Pantheon?",
+      content: "Xin chào! Tôi có thể giúp gì cho bạn về đền Parthenon?",
       sender: "bot",
       timestamp: new Date(),
     },
