@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 
 export default function Home() {
   const [message, setMessage] = useState("");
@@ -34,7 +33,7 @@ export default function Home() {
       }
 
       setResponse(data.response);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Detailed error:", error);
       setResponse(`Lỗi: ${error.message || "Không thể kết nối đến máy chủ"}`);
     } finally {
