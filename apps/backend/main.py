@@ -14,7 +14,11 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins in development
+    allow_origins=[
+        "http://localhost:3000",
+        "https://*.vercel.app",  # Allow all Vercel preview deployments
+        "https://your-production-domain.com"  # Replace with your actual domain
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,8 +31,17 @@ class ChatRequest(BaseModel):
 async def chat(request: ChatRequest):
     try:
         if not os.getenv('OPENAI_API_KEY'):
-            raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+            raise HTTPException(
+                status_code=500, 
+                detail="OpenAI API key không được cấu hình"
+            )
         
+        if not request.message:
+            raise HTTPException(
+                status_code=400,
+                detail="Tin nhắn không được để trống"
+            )
+            
         # Add debug logging    
         print(f"Received message: {request.message}")
         
@@ -62,7 +75,23 @@ async def chat(request: ChatRequest):
                 }
             ]
         )
+        
+        if not response.choices:
+            raise HTTPException(
+                status_code=500,
+                detail="Không nhận được phản hồi từ OpenAI"
+            )
+            
         return {"response": response.choices[0].message.content}
     except Exception as e:
-        print(f"Error in chat endpoint: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        error_message = str(e)
+        print(f"Error in chat endpoint: {error_message}")
+        
+        if "API key" in error_message:
+            detail = "Lỗi xác thực API"
+        elif "Rate limit" in error_message:
+            detail = "Đã vượt quá giới hạn yêu cầu"
+        else:
+            detail = "Lỗi server nội bộ"
+            
+        raise HTTPException(status_code=500, detail=detail)
