@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { ApiError } from "../types/error";
 
 export default function Home() {
   const [message, setMessage] = useState("");
@@ -21,21 +22,31 @@ export default function Home() {
         body: JSON.stringify({ message }),
       });
 
-      // Log the response status
-      console.log("Response status:", res.status);
-
-      // Try to get the error message from the response
       const data = await res.json();
-      console.log("Response data:", data);
 
       if (!res.ok) {
-        throw new Error(data.detail || `HTTP error! status: ${res.status}`);
+        throw new ApiError(
+          "API request failed",
+          res.status,
+          data.detail || "Unknown error"
+        );
+      }
+
+      if (!data.response) {
+        throw new ApiError("Invalid response format", res.status);
       }
 
       setResponse(data.response);
     } catch (error) {
-      console.error("Detailed error:", error);
-      setResponse(`Lỗi: ${error.message || "Không thể kết nối đến máy chủ"}`);
+      console.error("Error details:", error);
+
+      if (error instanceof ApiError) {
+        setResponse(`Lỗi: ${error.detail || error.message}`);
+      } else if (error instanceof Error) {
+        setResponse(`Lỗi kết nối: ${error.message}`);
+      } else {
+        setResponse("Đã xảy ra lỗi không xác định");
+      }
     } finally {
       setIsLoading(false);
       setMessage("");
