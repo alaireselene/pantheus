@@ -16,7 +16,7 @@ app = FastAPI()
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://parthenos.fly.dev"
+    "https://parthenos.vercel.app"
 ]
 
 app.add_middleware(
@@ -110,3 +110,7 @@ async def chat(request: ChatRequest):
             detail = "Lỗi server nội bộ"
             
         raise HTTPException(status_code=500, detail=detail)
+    
+@app.get("/healthcheck")
+def read_root():
+    return {"status": "ok"}
