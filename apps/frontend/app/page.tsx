@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import { ApiError } from "../types/error";
 import { Message } from "../types/chat";
@@ -13,29 +13,33 @@ export default function Home() {
       timestamp: new Date(),
     },
   ]);
-  const [message, setMessage] = useState("");
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    e.stopPropagation(); // Add this to prevent event bubbling
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: message.trim(),
+      content: input.trim(),
       sender: "user",
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setIsLoading(true);
-    setMessage("");
-
     try {
+      setMessages((prev) => [...prev, userMessage]);
+      setIsLoading(true);
+      setInput(""); // Clear input after setting message
+
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
       const res = await fetch(`${apiUrl}/api/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ message: userMessage.content }),
       });
 
@@ -136,11 +140,12 @@ export default function Home() {
         >
           <input
             type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Nhập câu hỏi của bạn..."
             className="flex-1 p-2 border border-ancient-brown/20 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-ancient-azure/50"
             disabled={isLoading}
+            autoComplete="off"
           />
           <button
             type="submit"
