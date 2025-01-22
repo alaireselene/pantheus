@@ -17,7 +17,6 @@ export default function Home() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
