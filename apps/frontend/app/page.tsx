@@ -1,5 +1,5 @@
 "use client";
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, KeyboardEvent } from "react";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import { ApiError } from "../types/error";
 import { Message } from "../types/chat";
@@ -16,9 +16,14 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation(); // Add this to prevent event bubbling
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleMessage();
+    }
+  };
+
+  const handleMessage = async () => {
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
@@ -31,7 +36,7 @@ export default function Home() {
     try {
       setMessages((prev) => [...prev, userMessage]);
       setIsLoading(true);
-      setInput(""); // Clear input after setting message
+      setInput("");
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
       const res = await fetch(`${apiUrl}/api/chat`, {
@@ -134,27 +139,30 @@ export default function Home() {
           )}
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="flex gap-2 bg-ancient-yellow/10 p-4 rounded-lg shadow-md border border-ancient-yellow/20"
-        >
-          <input
-            type="text"
+        <div className="flex gap-2 bg-ancient-yellow/10 p-4 rounded-lg shadow-md border border-ancient-yellow/20">
+          <textarea
+            rows={1}
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Nhập câu hỏi của bạn..."
-            className="flex-1 p-2 border border-ancient-brown/20 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-ancient-azure/50"
+            className="flex-1 p-2 border border-ancient-brown/20 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-ancient-azure/50 resize-none overflow-hidden"
+            style={{
+              minHeight: "42px",
+              maxHeight: "200px",
+              height: "auto",
+            }}
             disabled={isLoading}
-            autoComplete="off"
           />
           <button
-            type="submit"
-            disabled={isLoading}
+            onClick={handleMessage}
+            type="button"
+            disabled={isLoading || !input.trim()}
             className="bg-ancient-azure text-white px-6 py-2 rounded-lg hover:bg-ancient-azure/90 disabled:bg-ancient-beaver transition-colors"
           >
             Gửi
           </button>
-        </form>
+        </div>
       </main>
 
       <aside className="w-[480px] h-screen flex flex-col bg-ancient-yellow/10 shadow-inner overflow-y-auto border-l border-ancient-brown/20">
