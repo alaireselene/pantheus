@@ -2,96 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-}
-
-/* ...existing code... */
-
-@layer utilities {
-  .scrollbar-thin {
-    scrollbar-width: thin;
-  }
-
-  .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
-    background-color: #d1d5db;
-    border-radius: 6px;
-  }
-
-  .scrollbar-track-gray-100::-webkit-scrollbar-track {
-    background-color: #f3f4f6;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-  }
-}
-
 @layer base {
-  .prose-ancient {
-    @apply prose-headings:text-ancient-gold dark:prose-headings:text-ancient-dark-gold
-      prose-p:text-ancient-text dark:prose-p:text-ancient-dark-text
-      prose-a:text-ancient-azure dark:prose-a:text-ancient-dark-azure
-      prose-a:no-underline
-      hover:prose-a:text-ancient-azure/80 dark:hover:prose-a:text-ancient-dark-azure/80
-      prose-strong:text-ancient-text dark:prose-strong:text-ancient-dark-text
-      prose-pre:bg-ancient-surface/5 dark:prose-pre:bg-ancient-dark-surface/5
-      prose-ul:text-ancient-text dark:prose-ul:text-ancient-dark-text
-      prose-ol:text-ancient-text dark:prose-ol:text-ancient-dark-text
-      prose-li:text-ancient-text dark:prose-li:text-ancient-dark-text
-      prose-ul:marker:text-ancient-gold dark:prose-ul:marker:text-ancient-dark-gold
-      prose-ol:marker:text-ancient-gold dark:prose-ol:marker:text-ancient-dark-gold;
-  }
-}
-
-/* Responsive layout */
-@media (max-width: 1024px) {
-  .min-h-screen.flex {
-    flex-direction: column;
+  html {
+    height: 100%;
+    overflow: hidden;
   }
 
-  aside {
-    width: 100% !important;
-    height: auto !important;
+  body {
+    height: 100%;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
-}
 
-/* Add these to your existing CSS */
-@supports (-webkit-touch-callout: none) {
-  .min-h-screen {
-    min-height: -webkit-fill-available;
+  .prose {
+    max-width: none;
   }
-}
 
-html,
-body {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  overscroll-behavior: none;
-  overflow: hidden;
-}
-
-/* Prevent text selection on double-tap */
-* {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-}
-
-/* Ensure smooth scrolling for chat container */
-.overflow-y-auto {
-  -webkit-overflow-scrolling: touch;
+  @supports (-webkit-touch-callout: none) {
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
 }

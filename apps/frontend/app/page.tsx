@@ -19,6 +19,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Add auto-resize functionality for textarea
   const adjustTextAreaHeight = () => {
@@ -30,20 +32,30 @@ export default function Home() {
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (chatContainerRef.current) {
+      const shouldScroll =
+        chatContainerRef.current.scrollHeight -
+          chatContainerRef.current.scrollTop <=
+        chatContainerRef.current.clientHeight + 100;
+      if (shouldScroll) {
+        chatContainerRef.current.scrollTo({
+          top: chatContainerRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [messages, isLoading]);
 
   // Handle iOS viewport height
   useEffect(() => {
-    const setVH = () => {
-      document.documentElement.style.setProperty(
-        "--vh",
-        `${window.innerHeight * 0.01}px`
-      );
+    const handleResize = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
     };
-    setVH();
-    window.addEventListener("resize", setVH);
-    return () => window.removeEventListener("resize", setVH);
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -118,115 +130,33 @@ export default function Home() {
   };
 
   return (
-    <div
-      className="fixed inset-0 flex bg-ancient-sage/30 dark:bg-ancient-dark-bg overflow-hidden"
-      style={{ height: "calc(var(--vh, 1vh) * 100)" }}
-    >
-      <main className="flex-1 flex flex-col h-full p-4 border-r border-ancient-brown/20 dark:border-ancient-dark-border">
-        <div
-          className="flex-1 overflow-y-auto space-y-6 mb-4 scrollbar-thin scrollbar-thumb-ancient-beaver 
-                      dark:scrollbar-thumb-ancient-dark-border scrollbar-track-ancient-sage/30 
-                      overscroll-contain"
-        >
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}
-            >
-              <span className="text-xs text-ancient-text dark:text-ancient-dark-text mb-1 px-2 font-medium">
-                {msg.sender === "user" ? "Bạn" : "Parthenos Project"}
-              </span>
-              <div
-                className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
-                  msg.sender === "user"
-                    ? "bg-ancient-azure text-white rounded-tr-none"
-                    : "bg-ancient-yellow/10 dark:bg-ancient-dark-surface/50 shadow-md rounded-tl-none border border-ancient-yellow/20 dark:border-ancient-dark-border"
-                }`}
-              >
-                <div
-                  className={
-                    msg.sender === "bot"
-                      ? "prose prose-ancient max-w-none"
-                      : "whitespace-pre-wrap"
-                  }
-                >
-                  {msg.sender === "bot" ? (
-                    <MarkdownRenderer content={msg.content} />
-                  ) : (
-                    msg.content
-                  )}
-                </div>
-                <div
-                  className={`text-[10px] mt-1 ${
-                    msg.sender === "user"
-                      ? "text-white/70" // Keep white for user messages since they're on blue background
-                      : "text-ancient-text-secondary dark:text-ancient-dark-text-secondary"
-                  }`}
-                >
-                  {msg.timestamp.toLocaleTimeString()}
-                </div>
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex flex-col items-start">
-              <span className="text-xs text-ancient-text dark:text-ancient-dark-text mb-1 px-2 font-medium">
-                Parthenos Project
-              </span>
-              <div className="bg-ancient-yellow/10 dark:bg-ancient-dark-surface/50 rounded-2xl rounded-tl-none px-4 py-2.5 animate-pulse text-ancient-text-secondary dark:text-ancient-dark-text-secondary">
-                Đang trả lời...
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className="flex gap-2 bg-ancient-yellow/10 p-4 rounded-lg shadow-md border border-ancient-yellow/20 sticky bottom-0">
-          <textarea
-            ref={textAreaRef}
-            rows={1}
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value);
-              adjustTextAreaHeight();
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder="Nhập câu hỏi của bạn..."
-            className="flex-1 p-2 border border-ancient-brown/20 rounded-lg bg-white/50 
-                     focus:outline-none focus:ring-2 focus:ring-ancient-azure/50 
-                     resize-none overflow-hidden"
-            style={{
-              minHeight: "42px",
-              maxHeight: "120px", // Reduced for better iOS experience
-            }}
-            disabled={isLoading}
-          />
+    <div className="fixed inset-0 flex bg-white dark:bg-gray-900 overflow-hidden text-gray-900 dark:text-gray-100">
+      <main className="relative flex-1 flex flex-col h-screen">
+        {/* Mobile Header */}
+        <div className="sticky top-0 flex items-center justify-between p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b border-gray-200 dark:border-gray-800 md:hidden z-10">
           <button
-            onClick={handleMessage}
-            type="button"
-            disabled={isLoading || !input.trim()}
-            className="bg-ancient-azure text-white px-6 py-2 rounded-lg hover:bg-ancient-azure/90 disabled:bg-ancient-beaver transition-colors"
+            onClick={() => setIsSidebarOpen(true)}
+            className="flex items-center gap-2 text-gray-900 dark:text-gray-100"
           >
-            Gửi
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+            <span className="font-semibold">Dự án Parthenos</span>
           </button>
-        </div>
-      </main>
-
-      <aside
-        className="w-[480px] h-full flex flex-col bg-ancient-yellow/10 
-                      dark:bg-ancient-dark-surface shadow-inner overflow-y-auto 
-                      border-l border-ancient-brown/20 dark:border-ancient-dark-border 
-                      overscroll-contain"
-        style={{ height: "calc(var(--vh, 1vh) * 100)" }}
-      >
-        <div className="flex items-center justify-between p-6 border-b border-ancient-brown/20 dark:border-ancient-dark-border">
-          <span className="text-3xl font-bold text-ancient-gold">
-            <u>Dự án Parthenos</u>
-          </span>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center space-x-3">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-ancient-sage/20 dark:hover:bg-ancient-dark-border"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200"
             >
               {theme === "dark" ? (
                 <svg
@@ -279,7 +209,141 @@ export default function Home() {
             </a>
           </div>
         </div>
-        <div className="flex-1 p-6 prose prose-ancient">
+
+        {/* Chat Container */}
+        <div
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto px-4 md:px-6 pt-4 pb-36 space-y-6 scroll-smooth bg-white/50 dark:bg-gray-900/50"
+        >
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}
+            >
+              <span className="text-xs text-gray-700 dark:text-gray-300 mb-1 px-2 font-medium">
+                {msg.sender === "user" ? "Bạn" : "Parthenos Project"}
+              </span>
+              <div
+                className={`max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3 ${
+                  msg.sender === "user"
+                    ? "bg-blue-600 text-white rounded-tr-none"
+                    : "bg-gray-100 dark:bg-gray-800 rounded-tl-none text-gray-900 dark:text-gray-100"
+                }`}
+              >
+                <div
+                  className={
+                    msg.sender === "bot"
+                      ? "prose dark:prose-invert max-w-none"
+                      : "whitespace-pre-wrap"
+                  }
+                >
+                  {msg.sender === "bot" ? (
+                    <MarkdownRenderer content={msg.content} />
+                  ) : (
+                    msg.content
+                  )}
+                </div>
+                <div
+                  className={`text-[10px] mt-1 ${
+                    msg.sender === "user"
+                      ? "text-white/70"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                >
+                  {msg.timestamp.toLocaleTimeString()}
+                </div>
+              </div>
+            </div>
+          ))}
+          {isLoading && (
+            <div className="flex flex-col items-start">
+              <span className="text-xs text-gray-700 dark:text-gray-300 mb-1 px-2 font-medium">
+                Parthenos Project
+              </span>
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-tl-none px-4 py-3 animate-pulse">
+                <span className="text-gray-900 dark:text-gray-100">
+                  Đang trả lời...
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Input Container */}
+        <div className="absolute bottom-0 left-0 right-0 md:left-0 md:right-[480px] bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-t border-gray-200 dark:border-gray-800 w-full">
+          <div className="max-w-4xl mx-auto w-full p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            <div className="flex gap-2 items-stretch w-full">
+              {" "}
+              {/* Changed to items-stretch */}
+              <textarea
+                ref={textAreaRef}
+                rows={1}
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  adjustTextAreaHeight();
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder="Nhập câu hỏi của bạn..."
+                className="w-full min-h-[48px] p-3 bg-white dark:bg-gray-800 
+                         border border-gray-200 dark:border-gray-700 rounded-lg 
+                         placeholder-gray-500 dark:placeholder-gray-400
+                         text-gray-900 dark:text-gray-100 resize-none
+                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={{
+                  height: "48px", // Fixed initial height
+                  maxHeight: "120px",
+                }}
+                disabled={isLoading}
+              />
+              <button
+                onClick={handleMessage}
+                disabled={isLoading || !input.trim()}
+                className="h-[48px] px-6 rounded-lg bg-blue-600 hover:bg-blue-700 
+                         disabled:bg-gray-400 dark:disabled:bg-gray-700
+                         text-white font-medium transition-all
+                         focus:outline-none focus:ring-2 focus:ring-blue-500
+                         active:scale-95 transform whitespace-nowrap"
+              >
+                Gửi
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed md:relative inset-y-0 right-0 w-[480px] max-w-full 
+                   bg-gray-50 dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800
+                   text-gray-900 dark:text-gray-100
+                   transform transition-transform duration-300 z-50
+                   ${isSidebarOpen ? "translate-x-0" : "translate-x-full"} md:translate-x-0`}
+      >
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800">
+          <span className="text-2xl font-bold text-gray-700 dark:text-gray-200">
+            <u>Dự án Parthenos</u>
+          </span>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+        <div className="overflow-y-auto h-[calc(100%-5rem)] p-6 overscroll-contain">
           <div className="mb-6">
             <p>
               <b>
@@ -301,11 +365,16 @@ export default function Home() {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2">Thông tin tác giả</h3>
-            <p className="mb-1">
-              Nguyễn Trường Sinh, Học sinh lớp 10M, Trường THPT Cẩm Giàng - Hải
-              Dương
-            </p>
+            <h3 className="text-lg font-semibold mb-2">Nhóm tác giả</h3>
+            <ul>
+              <li>Nguyễn Trường Sinh - 10M</li>
+              <li>Nguyễn Văn Thanh Hải - 10A</li>
+              <li>Nguyễn Đức Lộc - 10A</li>
+              <li>Vũ Phú Minh - 10A</li>
+              <li>Trần Đặng Cường - 10A</li>
+              <li>Trần Xuân Trường - 10A</li>
+            </ul>
+            <p>Học sinh trường THPT Cẩm Giàng - Hải Dương</p>
           </div>
 
           <div className="mb-6">
@@ -324,6 +393,14 @@ export default function Home() {
           </div>
         </div>
       </aside>
+
+      {/* Backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm md:hidden z-40"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 }
