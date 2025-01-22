@@ -1,5 +1,5 @@
 "use client";
-import { useState, KeyboardEvent } from "react";
+import { useState, KeyboardEvent, useEffect, useRef } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import { ApiError } from "../types/error";
@@ -17,6 +17,34 @@ export default function Home() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Add auto-resize functionality for textarea
+  const adjustTextAreaHeight = () => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    }
+  };
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // Handle iOS viewport height
+  useEffect(() => {
+    const setVH = () => {
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`
+      );
+    };
+    setVH();
+    window.addEventListener("resize", setVH);
+    return () => window.removeEventListener("resize", setVH);
+  }, []);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -90,9 +118,16 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-ancient-sage/30 dark:bg-ancient-dark-bg flex">
-      <main className="flex-1 flex flex-col h-screen p-4 border-r border-ancient-brown/20 dark:border-ancient-dark-border">
-        <div className="flex-1 overflow-y-auto space-y-6 mb-4 scrollbar-thin scrollbar-thumb-ancient-beaver dark:scrollbar-thumb-ancient-dark-border scrollbar-track-ancient-sage/30">
+    <div
+      className="fixed inset-0 flex bg-ancient-sage/30 dark:bg-ancient-dark-bg overflow-hidden"
+      style={{ height: "calc(var(--vh, 1vh) * 100)" }}
+    >
+      <main className="flex-1 flex flex-col h-full p-4 border-r border-ancient-brown/20 dark:border-ancient-dark-border">
+        <div
+          className="flex-1 overflow-y-auto space-y-6 mb-4 scrollbar-thin scrollbar-thumb-ancient-beaver 
+                      dark:scrollbar-thumb-ancient-dark-border scrollbar-track-ancient-sage/30 
+                      overscroll-contain"
+        >
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -143,20 +178,26 @@ export default function Home() {
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
 
-        <div className="flex gap-2 bg-ancient-yellow/10 p-4 rounded-lg shadow-md border border-ancient-yellow/20">
+        <div className="flex gap-2 bg-ancient-yellow/10 p-4 rounded-lg shadow-md border border-ancient-yellow/20 sticky bottom-0">
           <textarea
+            ref={textAreaRef}
             rows={1}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              adjustTextAreaHeight();
+            }}
             onKeyDown={handleKeyDown}
             placeholder="Nhập câu hỏi của bạn..."
-            className="flex-1 p-2 border border-ancient-brown/20 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-ancient-azure/50 resize-none overflow-hidden"
+            className="flex-1 p-2 border border-ancient-brown/20 rounded-lg bg-white/50 
+                     focus:outline-none focus:ring-2 focus:ring-ancient-azure/50 
+                     resize-none overflow-hidden"
             style={{
               minHeight: "42px",
-              maxHeight: "200px",
-              height: "auto",
+              maxHeight: "120px", // Reduced for better iOS experience
             }}
             disabled={isLoading}
           />
@@ -171,7 +212,13 @@ export default function Home() {
         </div>
       </main>
 
-      <aside className="w-[480px] h-screen flex flex-col bg-ancient-yellow/10 dark:bg-ancient-dark-surface shadow-inner overflow-y-auto border-l border-ancient-brown/20 dark:border-ancient-dark-border">
+      <aside
+        className="w-[480px] h-full flex flex-col bg-ancient-yellow/10 
+                      dark:bg-ancient-dark-surface shadow-inner overflow-y-auto 
+                      border-l border-ancient-brown/20 dark:border-ancient-dark-border 
+                      overscroll-contain"
+        style={{ height: "calc(var(--vh, 1vh) * 100)" }}
+      >
         <div className="flex items-center justify-between p-6 border-b border-ancient-brown/20 dark:border-ancient-dark-border">
           <span className="text-3xl font-bold text-ancient-gold">
             <u>Dự án Parthenos</u>
