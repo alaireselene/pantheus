@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { colors } from "./utils/colorScheme";
 
 export default {
   content: [
@@ -6,18 +7,29 @@ export default {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
         ancient: {
-          brown: '#372B1B',
-          beaver: '#9D8C71',
-          sage: '#BBB093',
-          gold: '#AA633F',
-          yellow: '#C8A55F',
-          azure: '#4D89B0'
+          // Light theme colors
+          background: colors.light.background,
+          surface: colors.light.surface,
+          border: colors.light.border,
+          text: colors.light.text.primary,
+          'text-secondary': colors.light.text.secondary,
+          gold: colors.light.accent.primary,
+          azure: colors.light.accent.secondary,
+          yellow: colors.light.accent.tertiary,
+          // Dark theme colors
+          'dark-bg': colors.dark.background,
+          'dark-surface': colors.dark.surface,
+          'dark-border': colors.dark.border,
+          'dark-text': colors.dark.text.primary,
+          'dark-text-secondary': colors.dark.text.secondary,
+          'dark-gold': colors.dark.accent.primary,
+          'dark-azure': colors.dark.accent.secondary,
+          'dark-yellow': colors.dark.accent.tertiary,
         }
       },
       typography: {

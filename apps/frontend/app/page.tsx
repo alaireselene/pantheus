@@ -1,10 +1,12 @@
 "use client";
-import { useState, FormEvent, KeyboardEvent } from "react";
+import { useState, KeyboardEvent } from "react";
+import { useTheme } from "../contexts/ThemeContext";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import { ApiError } from "../types/error";
 import { Message } from "../types/chat";
 
 export default function Home() {
+  const { theme, setTheme } = useTheme();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "0",
@@ -83,23 +85,27 @@ export default function Home() {
     }
   };
 
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
   return (
-    <div className="min-h-screen bg-ancient-sage/30 flex">
-      <main className="flex-1 flex flex-col h-screen p-4 border-r border-ancient-brown/20">
-        <div className="flex-1 overflow-y-auto space-y-6 mb-4 scrollbar-thin scrollbar-thumb-ancient-beaver scrollbar-track-ancient-sage/30">
+    <div className="min-h-screen bg-ancient-sage/30 dark:bg-ancient-dark-bg flex">
+      <main className="flex-1 flex flex-col h-screen p-4 border-r border-ancient-brown/20 dark:border-ancient-dark-border">
+        <div className="flex-1 overflow-y-auto space-y-6 mb-4 scrollbar-thin scrollbar-thumb-ancient-beaver dark:scrollbar-thumb-ancient-dark-border scrollbar-track-ancient-sage/30">
           {messages.map((msg) => (
             <div
               key={msg.id}
               className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}
             >
-              <span className="text-xs text-ancient-brown mb-1 px-2 font-medium">
+              <span className="text-xs text-ancient-text dark:text-ancient-dark-text mb-1 px-2 font-medium">
                 {msg.sender === "user" ? "Bạn" : "Parthenos Project"}
               </span>
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                   msg.sender === "user"
                     ? "bg-ancient-azure text-white rounded-tr-none"
-                    : "bg-ancient-yellow/10 shadow-md rounded-tl-none border border-ancient-yellow/20"
+                    : "bg-ancient-yellow/10 dark:bg-ancient-dark-surface/50 shadow-md rounded-tl-none border border-ancient-yellow/20 dark:border-ancient-dark-border"
                 }`}
               >
                 <div
@@ -118,8 +124,8 @@ export default function Home() {
                 <div
                   className={`text-[10px] mt-1 ${
                     msg.sender === "user"
-                      ? "text-white/70"
-                      : "text-ancient-brown/70"
+                      ? "text-white/70" // Keep white for user messages since they're on blue background
+                      : "text-ancient-text-secondary dark:text-ancient-dark-text-secondary"
                   }`}
                 >
                   {msg.timestamp.toLocaleTimeString()}
@@ -129,10 +135,10 @@ export default function Home() {
           ))}
           {isLoading && (
             <div className="flex flex-col items-start">
-              <span className="text-xs text-ancient-brown mb-1 px-2 font-medium">
+              <span className="text-xs text-ancient-text dark:text-ancient-dark-text mb-1 px-2 font-medium">
                 Parthenos Project
               </span>
-              <div className="bg-ancient-sage/30 rounded-2xl rounded-tl-none px-4 py-2.5 animate-pulse">
+              <div className="bg-ancient-yellow/10 dark:bg-ancient-dark-surface/50 rounded-2xl rounded-tl-none px-4 py-2.5 animate-pulse text-ancient-text-secondary dark:text-ancient-dark-text-secondary">
                 Đang trả lời...
               </div>
             </div>
@@ -165,30 +171,66 @@ export default function Home() {
         </div>
       </main>
 
-      <aside className="w-[480px] h-screen flex flex-col bg-ancient-yellow/10 shadow-inner overflow-y-auto border-l border-ancient-brown/20">
-        <div className="flex items-center justify-between p-6 border-b border-ancient-brown/20">
+      <aside className="w-[480px] h-screen flex flex-col bg-ancient-yellow/10 dark:bg-ancient-dark-surface shadow-inner overflow-y-auto border-l border-ancient-brown/20 dark:border-ancient-dark-border">
+        <div className="flex items-center justify-between p-6 border-b border-ancient-brown/20 dark:border-ancient-dark-border">
           <span className="text-3xl font-bold text-ancient-gold">
             <u>Dự án Parthenos</u>
           </span>
-          <a
-            href="https://github.com/alaireselene/pantheus"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-600 hover:text-gray-900"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="24"
-              height="24"
-              stroke="currentColor"
-              strokeWidth="2"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full hover:bg-ancient-sage/20 dark:hover:bg-ancient-dark-border"
             >
-              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-            </svg>
-          </a>
+              {theme === "dark" ? (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                  />
+                </svg>
+              )}
+            </button>
+            <a
+              href="https://github.com/alaireselene/pantheus"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-gray-900"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+              </svg>
+            </a>
+          </div>
         </div>
         <div className="flex-1 p-6 prose prose-ancient">
           <div className="mb-6">

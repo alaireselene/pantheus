@@ -42,15 +42,18 @@ body {
 
 @layer base {
   .prose-ancient {
-    @apply prose-headings:text-ancient-gold
-    prose-p:text-ancient-brown
-    prose-a:text-ancient-azure
-    prose-a:no-underline
-    hover:prose-a:text-ancient-azure/80
-    prose-strong:text-ancient-brown
-    prose-code:text-ancient-gold
-    prose-pre:bg-ancient-sage/30
-    prose-pre:text-ancient-brown;
+    @apply prose-headings:text-ancient-gold dark:prose-headings:text-ancient-dark-gold
+      prose-p:text-ancient-text dark:prose-p:text-ancient-dark-text
+      prose-a:text-ancient-azure dark:prose-a:text-ancient-dark-azure
+      prose-a:no-underline
+      hover:prose-a:text-ancient-azure/80 dark:hover:prose-a:text-ancient-dark-azure/80
+      prose-strong:text-ancient-text dark:prose-strong:text-ancient-dark-text
+      prose-pre:bg-ancient-surface/5 dark:prose-pre:bg-ancient-dark-surface/5
+      prose-ul:text-ancient-text dark:prose-ul:text-ancient-dark-text
+      prose-ol:text-ancient-text dark:prose-ol:text-ancient-dark-text
+      prose-li:text-ancient-text dark:prose-li:text-ancient-dark-text
+      prose-ul:marker:text-ancient-gold dark:prose-ul:marker:text-ancient-dark-gold
+      prose-ol:marker:text-ancient-gold dark:prose-ol:marker:text-ancient-dark-gold;
   }
 }
 
